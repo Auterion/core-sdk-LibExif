@@ -28,8 +28,6 @@
 #include <libexif/exif-utils.h>
 #include <libexif/exif-data.h>
 
-#define DEBUG
-
 static void
 exif_mnote_data_olympus_clear (ExifMnoteDataOlympus *n)
 {
@@ -78,7 +76,7 @@ exif_mnote_data_olympus_get_value (ExifMnoteData *d, unsigned int i, char *val, 
  * @brief save the MnoteData from ne to buf
  * 
  * @param ne extract the data from this structure 
- * @param *buf write the mnoteData to this buffer (buffer will be allocated)
+ * @param buf write the mnoteData to this buffer (buffer will be allocated)
  * @param buf_size the size of the buffer
  */
 static void
@@ -169,7 +167,7 @@ exif_mnote_data_olympus_save (ExifMnoteData *ne,
 		exif_set_short (*buf + o + 2, n->order,
 				(ExifShort) n->entries[i].format);
 		exif_set_long  (*buf + o + 4, n->order,
-				n->entries[i].components);
+				(ExifLong) n->entries[i].components);
 		o += 8;
 		s = exif_format_get_size (n->entries[i].format) *
 						n->entries[i].components;
@@ -183,11 +181,11 @@ exif_mnote_data_olympus_save (ExifMnoteData *ne,
 			doff = *buf_size;
 			ts = *buf_size + s;
 			t = exif_mem_realloc (ne->mem, *buf,
-						 sizeof (char) * ts);
+						 (ExifLong) (sizeof (char) * ts));
 			if (!t) return;
 			*buf = t;
-			*buf_size = ts;
-			exif_set_long (*buf + o, n->order, datao + doff);
+			*buf_size = (unsigned int) ts;
+			exif_set_long (*buf + o, n->order, (ExifLong) (datao + doff));
 		} else
 			doff = o;
 
@@ -367,8 +365,8 @@ exif_mnote_data_olympus_load (ExifMnoteData *en,
 	    o = o2 + 12 * i;
 	    if (o + 12 > buf_size) return;
 
-	    n->count = i + 1;
-	    n->entries[i].tag        = exif_get_short (buf + o, n->order) + base;
+	    n->count = (unsigned int) (i + 1);
+	    n->entries[i].tag        = (MnoteOlympusTag) (exif_get_short (buf + o, n->order) + base);
 	    n->entries[i].format     = exif_get_short (buf + o + 2, n->order);
 	    n->entries[i].components = exif_get_long (buf + o + 4, n->order);
 	    n->entries[i].order      = n->order;
@@ -389,9 +387,9 @@ exif_mnote_data_olympus_load (ExifMnoteData *en,
 	    if (o + s > buf_size) continue;
 
 	    /* Sanity check */
-	    n->entries[i].data = exif_mem_alloc (en->mem, s);
+	    n->entries[i].data = exif_mem_alloc (en->mem, (ExifLong) s);
 	    if (!n->entries[i].data) continue;
-	    n->entries[i].size = s;
+	    n->entries[i].size = (ExifLong) s;
 	    memcpy (n->entries[i].data, buf + o, s);
 	}
 }
@@ -456,7 +454,7 @@ exif_mnote_data_olympus_set_byte_order (ExifMnoteData *d, ExifByteOrder o)
 	for (i = 0; i < n->count; i++) {
 		n->entries[i].order = o;
 		exif_array_set_byte_order (n->entries[i].format, n->entries[i].data,
-				n->entries[i].components, o_orig, o);
+				(unsigned int) n->entries[i].components, o_orig, o);
 	}
 }
 

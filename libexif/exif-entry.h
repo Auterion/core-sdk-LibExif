@@ -66,7 +66,7 @@ void        exif_entry_unref   (ExifEntry *entry);
  * \deprecated Should not be called directly. Use exif_entry_ref() and
  *             exif_entry_unref() instead.
  */
-void        exif_entry_free  (ExifEntry *entry);
+__attribute__((deprecated)) void        exif_entry_free  (ExifEntry *entry);
 
 void        exif_entry_initialize (ExifEntry *entry, ExifTag tag);
 void        exif_entry_fix        (ExifEntry *entry);

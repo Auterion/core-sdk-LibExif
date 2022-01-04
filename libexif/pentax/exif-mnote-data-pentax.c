@@ -106,8 +106,8 @@ exif_mnote_data_pentax_load (ExifMnoteData *en,
 		o = datao + 2 + 12 * i;
 		if (o + 8 > buf_size) return;
 
-		n->count = i + 1;
-		n->entries[i].tag        = exif_get_short (buf + o + 0, n->order) + base;
+		n->count = (unsigned int) (i + 1);
+		n->entries[i].tag        = (MnotePentaxTag) (exif_get_short (buf + o + 0, n->order) + base);
 		n->entries[i].format     = exif_get_short (buf + o + 2, n->order);
 		n->entries[i].components = exif_get_long  (buf + o + 4, n->order);
 		n->entries[i].order      = n->order;
@@ -130,9 +130,9 @@ exif_mnote_data_pentax_load (ExifMnoteData *en,
 		if (o + s > buf_size) return;
                                                                                 
 		/* Sanity check */
-		n->entries[i].data = exif_mem_alloc (en->mem, s);
+		n->entries[i].data = exif_mem_alloc (en->mem, (ExifLong)s);
 		if (!n->entries[i].data) return;
-		n->entries[i].size = s;
+		n->entries[i].size = (unsigned int)s;
 		memcpy (n->entries[i].data, buf + o, s);
         }
 }
@@ -203,7 +203,7 @@ exif_mnote_data_pentax_set_byte_order (ExifMnoteData *d, ExifByteOrder o)
 	for (i = 0; i < n->count; i++) {
 		n->entries[i].order = o;
 		exif_array_set_byte_order (n->entries[i].format, n->entries[i].data,
-				n->entries[i].components, o_orig, o);
+				(unsigned int)n->entries[i].components, o_orig, o);
 	}
 }
 

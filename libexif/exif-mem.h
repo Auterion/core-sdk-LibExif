@@ -46,7 +46,6 @@ typedef void * (* ExifMemAllocFunc)   (ExifLong s);
 typedef void * (* ExifMemReallocFunc) (void *p, ExifLong s);
 /*! Free method for ExifMem
  * \param[in] p the pointer to free
- * \returns the freed pointer
  */
 typedef void   (* ExifMemFreeFunc)    (void *p);
 

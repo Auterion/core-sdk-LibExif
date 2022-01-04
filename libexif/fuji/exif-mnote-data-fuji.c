@@ -110,7 +110,7 @@ exif_mnote_data_fuji_save (ExifMnoteData *ne, unsigned char **buf,
 		o = 8 + 4 + 2 + i * 12;
 		exif_set_short (*buf + o + 0, n->order, (ExifShort) n->entries[i].tag);
 		exif_set_short (*buf + o + 2, n->order, (ExifShort) n->entries[i].format);
-		exif_set_long  (*buf + o + 4, n->order, n->entries[i].components);
+		exif_set_long  (*buf + o + 4, n->order, (ExifLong) n->entries[i].components);
 		o += 8;
 		s = exif_format_get_size (n->entries[i].format) *
 						n->entries[i].components;
@@ -125,15 +125,15 @@ exif_mnote_data_fuji_save (ExifMnoteData *ne, unsigned char **buf,
 
 			/* Ensure even offsets. Set padding bytes to 0. */
 			if (s & 1) ts += 1;
-			t = exif_mem_realloc (ne->mem, *buf, ts);
+			t = exif_mem_realloc (ne->mem, *buf, (ExifLong) ts);
 			if (!t) {
 				return;
 			}
 			*buf = t;
-			*buf_size = ts;
+			*buf_size = (ExifLong) ts;
 			doff = *buf_size - s;
 			if (s & 1) { doff--; *(*buf + *buf_size - 1) = '\0'; }
-			exif_set_long (*buf + o, n->order, doff);
+			exif_set_long (*buf + o, n->order, (ExifLong) doff);
 		} else
 			doff = o;
 
@@ -170,9 +170,9 @@ exif_mnote_data_fuji_load (ExifMnoteData *en,
 		if (datao + 12 > buf_size) return;
 
 		t = exif_mem_realloc (en->mem, n->entries,
-				sizeof (MnoteFujiEntry) * (i + 1));
+                          (ExifLong) (sizeof (MnoteFujiEntry) * (i + 1)));
 		if (!t) return;
-		n->count = i + 1;
+		n->count = (unsigned int) i + 1;
 		n->entries = t;
 		memset (&n->entries[i], 0, sizeof (MnoteFujiEntry));
 		n->entries[i].tag        = exif_get_short (buf + o, n->order);
@@ -191,9 +191,9 @@ exif_mnote_data_fuji_load (ExifMnoteData *en,
 		if (o + s > buf_size) return;
 
 		/* Sanity check */
-		n->entries[i].data = exif_mem_alloc (en->mem, s);
+		n->entries[i].data = exif_mem_alloc (en->mem, (ExifLong) s);
 		if (!n->entries[i].data) return;
-		n->entries[i].size = s;
+		n->entries[i].size = (unsigned int)s;
 		memcpy (n->entries[i].data, buf + o, s);
 	}
 }
@@ -258,7 +258,7 @@ exif_mnote_data_fuji_set_byte_order (ExifMnoteData *d, ExifByteOrder o)
 	for (i = 0; i < n->count; i++) {
 		n->entries[i].order = o;
 		exif_array_set_byte_order (n->entries[i].format, n->entries[i].data,
-				n->entries[i].components, o_orig, o);
+				(unsigned int) n->entries[i].components, o_orig, o);
 	}
 }
 

@@ -177,7 +177,7 @@ exif_data_load_data_entry (ExifData *data, ExifEntry *entry,
 
 	/* {0,1,2,4,8} x { 0x00000000 .. 0xffffffff } 
 	 *   -> { 0x000000000 .. 0x7fffffff8 } */
-	s = exif_format_get_size(entry->format) * entry->components;
+	s = (unsigned int) (exif_format_get_size(entry->format) * entry->components);
 	if (s < entry->components) {
 		return 0;
 	}
@@ -261,13 +261,13 @@ exif_data_save_data_entry (ExifData *data, ExifEntry *e,
 	}
 
 	exif_set_long  (*d + 6 + offset + 4,
-			data->priv->order, e->components);
+			data->priv->order, (ExifLong) e->components);
 
 	/*
 	 * Size? If bigger than 4 bytes, the actual data is not in
 	 * the entry but somewhere else.
 	 */
-	s = exif_format_get_size (e->format) * e->components;
+	s = (unsigned int) (exif_format_get_size (e->format) * e->components);
 	if (s > 4) {
 		doff = *ds - 6;
 		ts = *ds + s;
@@ -1113,7 +1113,7 @@ entry_set_byte_order (ExifEntry *e, void *data)
 	if (!e)
 		return;
 
-	exif_array_set_byte_order (e->format, e->data, e->components, d->old, d->new);
+	exif_array_set_byte_order (e->format, e->data, (unsigned int)e->components, d->old, d->new);
 }
 
 static void

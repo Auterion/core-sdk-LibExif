@@ -507,7 +507,7 @@ mnote_canon_entry_count_values (const MnoteCanonEntry *entry)
 	switch (entry->tag) {
 	case MNOTE_CANON_TAG_FOCAL_LENGTH:
 	case MNOTE_CANON_TAG_PANORAMA:
-		return entry->components;
+		return (unsigned int)entry->components;
 	case MNOTE_CANON_TAG_SETTINGS_1:
 	case MNOTE_CANON_TAG_SETTINGS_2:
 	case MNOTE_CANON_TAG_CUSTOM_FUNCS:
@@ -549,7 +549,8 @@ mnote_canon_entry_get_value (const MnoteCanonEntry *entry, unsigned int t, char 
 {
 	char buf[128];
 	ExifLong vl;
-	ExifShort vs, n;
+  ExifShort vs = 0;
+  ExifShort n = 0;
 	unsigned char *data;
 	double d;
 
@@ -750,7 +751,7 @@ mnote_canon_entry_get_value (const MnoteCanonEntry *entry, unsigned int t, char 
 			printf ("Value%d=%d\n", i, vs);
 		}
 		else if (entry->format == EXIF_FORMAT_ASCII)
-		    strncpy (val, data, MIN (entry->size, maxlen));
+		    strncpy (val, (const char *)data, MIN (entry->size, maxlen));
 	  }
 #endif
 		break;

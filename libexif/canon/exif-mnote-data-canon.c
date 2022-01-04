@@ -30,8 +30,6 @@
 #include <libexif/exif-utils.h>
 #include <libexif/exif-data.h>
 
-#define DEBUG
-
 static void
 exif_mnote_data_canon_clear (ExifMnoteDataCanon *n)
 {
@@ -103,7 +101,7 @@ exif_mnote_data_canon_set_byte_order (ExifMnoteData *d, ExifByteOrder o)
 	for (i = 0; i < n->count; i++) {
 		n->entries[i].order = o;
 		exif_array_set_byte_order (n->entries[i].format, n->entries[i].data,
-				n->entries[i].components, o_orig, o);
+				(unsigned int) n->entries[i].components, o_orig, o);
 	}
 }
 
@@ -141,7 +139,7 @@ exif_mnote_data_canon_save (ExifMnoteData *ne,
 		exif_set_short (*buf + o + 0, n->order, (ExifShort) n->entries[i].tag);
 		exif_set_short (*buf + o + 2, n->order, (ExifShort) n->entries[i].format);
 		exif_set_long  (*buf + o + 4, n->order,
-				n->entries[i].components);
+				(ExifLong) n->entries[i].components);
 		o += 8;
 		s = exif_format_get_size (n->entries[i].format) *
 						n->entries[i].components;
@@ -157,13 +155,13 @@ exif_mnote_data_canon_save (ExifMnoteData *ne,
 			/* Ensure even offsets. Set padding bytes to 0. */
 			if (s & 1) ts += 1;
 			t = exif_mem_realloc (ne->mem, *buf,
-						 sizeof (char) * ts);
+						 sizeof (char) * (ExifLong) ts);
 			if (!t) return;
 			*buf = t;
-			*buf_size = ts;
+			*buf_size = (unsigned int)ts;
 			doff = *buf_size - s;
 			if (s & 1) { doff--; *(*buf + *buf_size - 1) = '\0'; }
-			exif_set_long (*buf + o, n->order, n->offset + doff);
+			exif_set_long (*buf + o, n->order, (ExifLong) (n->offset + doff));
 		} else
 			doff = o;
 
@@ -210,9 +208,9 @@ exif_mnote_data_canon_load (ExifMnoteData *ne,
 	  if (o + 8 > buf_size) return;
 
 		t = exif_mem_realloc (ne->mem, n->entries,
-				sizeof (MnoteCanonEntry) * (i + 1));
+				(ExifLong) (sizeof (MnoteCanonEntry) * (i + 1)));
 		if (!t) return;
-		n->count = i + 1;
+		n->count = (unsigned int) (i + 1);
 		n->entries = t;
 		memset (&n->entries[i], 0, sizeof (MnoteCanonEntry));
 	  n->entries[i].tag        = exif_get_short (buf + o, n->order);
@@ -231,9 +229,9 @@ exif_mnote_data_canon_load (ExifMnoteData *ne,
 		if (o + s > buf_size) return;
 
 		/* Sanity check */
-		n->entries[i].data = exif_mem_alloc (ne->mem, sizeof (char) * s);
+		n->entries[i].data = exif_mem_alloc (ne->mem, (unsigned int) (sizeof (char) * s));
 		if (!n->entries[i].data) return;
-		n->entries[i].size = s;
+		n->entries[i].size = (unsigned int) s;
 		memcpy (n->entries[i].data, buf + o, s);
 	}
 }

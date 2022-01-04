@@ -93,4 +93,9 @@ void      jpeg_data_append_section (JPEGData *data);
 
 void      jpeg_data_log (JPEGData *data, ExifLog *log);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
 #endif /* __JPEG_DATA_H__ */
+
